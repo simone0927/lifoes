@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeOS — Il tuo sistema di vita</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─── -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h1>⚡ LifeOS</h1>
+    <p>Il tuo sistema personale</p>
+  </div>
+
+  <nav>
+    <div class="nav-section-label">Pianificazione</div>
+    <a class="nav-item" data-page="planner">
+      <span class="nav-icon">📅</span> Planning Settimanale
+    </a>
+    <a class="nav-item" data-page="budget">
+      <span class="nav-icon">💰</span> Budget
+    </a>
+
+    <div class="nav-section-label">Vita</div>
+    <a class="nav-item" data-page="food">
+      <span class="nav-icon">🍽️</span> Cosa Mangio?
+    </a>
+    <a class="nav-item" data-page="esami">
+      <span class="nav-icon">🎓</span> Esami Università
+    </a>
+
+    <div class="nav-section-label">Carriera</div>
+    <a class="nav-item" data-page="jobs">
+      <span class="nav-icon">💼</span> CV & Lavoro
+    </a>
+
+    <div class="nav-section-label">Sistema</div>
+    <a class="nav-item" data-page="extensions">
+      <span class="nav-icon">🧩</span> Estensioni
+    </a>
+    <a class="nav-item" data-page="github">
+      <span class="nav-icon">☁️</span> GitHub Sync
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="github-btn" onclick="App.navigate('github')">
+      <span>☁️</span> Sincronizza dati
+    </button>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─── -->
+<main id="main">
+
+  <!-- Mobile header -->
+  <div class="mobile-header">
+    <button class="hamburger" id="hamburger">☰</button>
+    <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;background:linear-gradient(135deg,#9D5CF6,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">⚡ LifeOS</span>
+  </div>
+
+  <!-- ═══ PAGE: PLANNER ═══ -->
+  <div class="page" id="page-planner">
+    <div class="page-header flex-between">
+      <div>
+        <h2>📅 Planning <span class="accent">Settimanale</span></h2>
+        <p>Clicca o trascina sulle celle per pianificare le tue attività</p>
+      </div>
+      <div class="flex gap-8">
+        <span id="planner-total" class="tag tag-violet"></span>
+        <button class="btn btn-secondary btn-sm" onclick="Planner.exportText()">⬇ Esporta</button>
+        <button class="btn btn-danger btn-sm" onclick="Planner.clearAll()">🗑 Cancella</button>
+      </div>
+    </div>
+
+    <!-- Activity Selector -->
+    <div class="card mb-16">
+      <div class="card-title">🎨 Tipo attività</div>
+      <div class="flex gap-8 flex-wrap mb-12">
+        <button class="btn btn-sm activity-btn active-act" data-act="studio" style="border:1px solid #7C3AED;background:rgba(124,58,237,0.2)">📚 Studio</button>
+        <button class="btn btn-sm activity-btn" data-act="lavoro" style="border:1px solid #06B6D4;background:rgba(6,182,212,0.15)">💼 Lavoro</button>
+        <button class="btn btn-sm activity-btn" data-act="sport" style="border:1px solid #10B981;background:rgba(16,185,129,0.15)">🏃 Sport</button>
+        <button class="btn btn-sm activity-btn" data-act="hobby" style="border:1px solid #F59E0B;background:rgba(245,158,11,0.15)">🎨 Hobby</button>
+        <button class="btn btn-sm activity-btn" data-act="riposo" style="border:1px solid #F43F5E;background:rgba(244,63,94,0.15)">😴 Riposo</button>
+        <button class="btn btn-sm activity-btn" data-act="personale" style="border:1px solid #A78BFA;background:rgba(167,139,250,0.15)">🧘 Personale</button>
+      </div>
+      <div class="flex gap-8" style="max-width:320px">
+        <div class="form-group" style="flex:1;margin:0">
+          <input type="text" id="custom-label" placeholder="Etichetta personalizzata (opzionale)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Week Grid -->
+    <div class="card" style="overflow-x:auto">
+      <div id="week-grid" class="week-grid" style="min-width:600px"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-2 mt-16">
+      <div class="card">
+        <div class="card-title">📊 Ripartizione ore</div>
+        <div id="planner-stats"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">💡 Suggerimenti</div>
+        <p class="text-sm text-muted" style="line-height:1.7">
+          Un planning efficace bilancia <span class="text-violet">studio e lavoro</span> con <span class="text-cyan">riposo e hobby</span>.<br><br>
+          Considera <strong>8 ore di sonno</strong> e almeno <strong>1 ora di sport</strong> al giorno.<br><br>
+          I blocchi di studio da <strong>90 minuti</strong> con pausa sono scientificamente ottimali.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: BUDGET ═══ -->
+  <div class="page" id="page-budget">
+    <div class="page-header">
+      <h2>💰 Budget <span class="accent">Mensile</span></h2>
+      <p>Monitora entrate, uscite e categorie di spesa</p>
+    </div>
+
+    <!-- Budget input -->
+    <div class="card mb-16">
+      <div class="card-title">💵 Imposta budget mensile</div>
+      <div class="input-row" style="max-width:360px">
+        <div class="form-group" style="margin:0">
+          <label>Budget totale mensile (€)</label>
+          <input type="number" id="budget-input" placeholder="es. 1500" min="0" step="10"
+            onfocus="this.dataset.focused=1" onblur="delete this.dataset.focused"
+            onchange="Budget.setMonthly(this.value)">
+        </div>
+        <button class="btn btn-primary" style="align-self:flex-end" onclick="Budget.setMonthly(document.getElementById('budget-input').value)">✓ Salva</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="budget-summary mb-16">
+      <div class="budget-stat">
+        <div class="amount text-violet" id="budget-monthly">€0</div>
+        <div class="stat-label">Budget mensile</div>
+      </div>
+      <div class="budget-stat">
+        <div class="amount text-rose" id="budget-spent">€0</div>
+        <div class="stat-label">Allocato</div>
+      </div>
+      <div class="budget-stat">
+        <div class="amount text-green" id="budget-remaining">€0</div>
+        <div class="stat-label">Disponibile</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="card mb-16">
+      <div class="flex-between mb-8">
+        <span class="text-sm font-mono">Utilizzo budget</span>
+        <div class="flex gap-12">
+          <span class="text-sm text-muted">Giornaliero: <span class="text-cyan font-mono" id="budget-daily">€0</span></span>
+          <span class="text-sm text-muted">Rimanente/giorno: <span class="text-green font-mono" id="budget-daily-left">€0</span></span>
+        </div>
+      </div>
+      <div class="progress-bar" style="height:10px">
+        <div class="progress-fill" id="budget-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Categories -->
+      <div class="card">
+        <div class="card-title flex-between">
+          <span>📂 Categorie di spesa</span>
+        </div>
+        <div id="categories-list"></div>
+        <div class="divider"></div>
+        <div class="card-title text-sm">➕ Aggiungi categoria</div>
+        <div class="input-row">
+          <div class="form-group" style="margin:0">
+            <label>Nome</label>
+            <input type="text" id="cat-name" placeholder="es. Affitto, Cibo...">
+          </div>
+          <div class="form-group" style="margin:0;max-width:120px">
+            <label>Importo (€)</label>
+            <input type="number" id="cat-amount" placeholder="0" min="0" step="5">
+          </div>
+          <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="Budget.addCategory()">+ Aggiungi</button>
+        </div>
+      </div>
+
+      <!-- Donut chart -->
+      <div class="card flex-center" style="flex-direction:column;gap:16px">
+        <div class="card-title">🍩 Distribuzione spese</div>
+        <canvas id="budget-chart" width="220" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: FOOD ═══ -->
+  <div class="page" id="page-food">
+    <div class="page-header">
+      <h2>🍽️ Cosa <span class="accent">Mangio?</span></h2>
+      <p>Lascia che il caso decida per te</p>
+    </div>
+
+    <div class="grid-2">
+      <!-- Roulette -->
+      <div class="card">
+        <div class="food-roulette">
+          <div class="food-display" id="food-display">
+            <div class="food-emoji" id="food-emoji">🎲</div>
+            <div class="food-name" id="food-name">Premi il pulsante!</div>
+          </div>
+          <button class="btn btn-primary" onclick="Food.spin()" style="font-size:1rem;padding:14px 32px">
+            🎰 Scegli per me!
+          </button>
+          <p class="text-muted text-sm">Clicca per scoprire cosa mangiare oggi</p>
+        </div>
+      </div>
+
+      <!-- Food List -->
+      <div class="card">
+        <div class="card-title flex-between">
+          <span>📋 Lista piatti (<span id="food-count">0</span>)</span>
+        </div>
+        <div id="food-list" class="food-list"></div>
+        <div class="divider"></div>
+        <div class="card-title text-sm">➕ Aggiungi piatto</div>
+        <div class="input-row mt-8">
+          <div class="form-group" style="margin:0;max-width:60px">
+            <label>Emoji</label>
+            <input type="text" id="food-emoji-input" placeholder="🍕" maxlength="2">
+          </div>
+          <div class="form-group" style="margin:0;flex:1">
+            <label>Nome piatto</label>
+            <input type="text" id="food-input" placeholder="es. Carbonara" onkeydown="if(event.key==='Enter')Food.add()">
+          </div>
+          <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="Food.add()">+ Aggiungi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: ESAMI ═══ -->
+  <div class="page" id="page-esami">
+    <div class="page-header flex-between">
+      <div>
+        <h2>🎓 Esami <span class="accent">Università</span></h2>
+        <p>Media ponderata, CFU e stima voti necessari</p>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('modal-exam')">+ Aggiungi Esame</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="val" id="exam-media">—</div>
+        <div class="lbl">Media ponderata</div>
+      </div>
+      <div class="stat-mini">
+        <div class="val" id="exam-cfu-done">0</div>
+        <div class="lbl">CFU conquistati</div>
+      </div>
+      <div class="stat-mini">
+        <div class="val" id="exam-cfu-total">0</div>
+        <div class="lbl">CFU totali</div>
+      </div>
+      <div class="stat-mini">
+        <div class="val" id="exam-count">0/0</div>
+        <div class="lbl">Esami completati</div>
+      </div>
+    </div>
+
+    <div class="grid-2 mb-16">
+      <!-- Target -->
+      <div class="card">
+        <div class="card-title">🎯 Obiettivo laurea</div>
+        <div class="input-row mb-12">
+          <div class="form-group" style="margin:0">
+            <label>Voto obiettivo (/110)</label>
+            <input type="number" id="target-input" placeholder="110" min="66" max="110" value="110">
+          </div>
+          <button class="btn btn-secondary btn-sm" style="align-self:flex-end" onclick="Esami.setTarget()">✓ Imposta</button>
+        </div>
+        <div class="card" style="background:var(--bg3)">
+          <span class="text-sm text-muted">Voto medio necessario negli esami rimanenti:</span>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--amber);margin-top:6px" id="needed-grade">—</div>
+        </div>
+        <div class="mt-12">
+          <span class="text-sm text-muted">Media in 110esimi (stimata): <span class="text-green font-mono" id="exam-media-lode">—</span></span>
+        </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="card">
+        <div class="card-title">📅 Google Calendar esami</div>
+        <p class="text-sm text-muted mb-12">Collega il tuo Google Calendar per visualizzare le date degli esami.</p>
+        <div class="form-group">
+          <label>URL calendario pubblico (iCal)</label>
+          <input type="url" id="calendar-url" placeholder="https://calendar.google.com/...">
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="Esami.importCalendar()">🔗 Collega calendario</button>
+        <p class="text-xs text-muted mt-12">
+          In Google Calendar: ⚙️ Impostazioni → Il tuo calendario → Indirizzo privato in formato iCal
+        </p>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="card-title">📋 Registro esami</div>
+      <div style="overflow-x:auto">
+        <table class="exam-table">
+          <thead>
+            <tr>
+              <th>Esame</th>
+              <th>CFU</th>
+              <th>Voto</th>
+              <th>Data</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="exam-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAGE: JOBS ═══ -->
+  <div class="page" id="page-jobs">
+    <div class="page-header">
+      <h2>💼 CV & <span class="accent">Ricerca Lavoro</span></h2>
+      <p>Carica il tuo CV e trova posizioni lavorative compatibili</p>
+    </div>
+
+    <div class="grid-2 mb-16">
+      <!-- CV Upload -->
+      <div class="card">
+        <div class="card-title">📄 Il tuo CV</div>
+
+        <!-- Dropzone -->
+        <div id="cv-dropzone" class="cv-dropzone"
+          ondrop="Jobs.handleDrop(event)"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          onclick="document.getElementById('cv-file-input').click()">
+          <div class="dz-icon">📄</div>
+          <h3>Trascina il tuo CV qui</h3>
+          <p>Oppure clicca per selezionare un file (.txt, .pdf)</p>
+          <input type="file" id="cv-file-input" style="display:none" accept=".txt,.pdf,.doc,.docx"
+            onchange="Jobs.handleDrop({dataTransfer:{files:this.files}})">
+        </div>
+
+        <!-- CV Loaded -->
+        <div id="cv-uploaded" style="display:none">
+          <div class="flex-between" style="padding:12px;background:var(--bg3);border-radius:10px;border:1px solid var(--border)">
+            <div class="flex gap-8">
+              <span style="font-size:1.5rem">📄</span>
+              <div>
+                <div class="font-mono text-sm" id="cv-filename">cv.pdf</div>
+                <div class="text-xs text-muted">CV caricato</div>
+              </div>
+            </div>
+            <div class="flex gap-8">
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('cv-file-input').click()">Sostituisci</button>
+              <button class="btn btn-danger btn-sm" onclick="Jobs.removeCV()">×</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="card">
+        <div class="card-title">🔍 Cerca posizioni</div>
+        <div class="form-group">
+          <label>Ruolo / Parole chiave</label>
+          <input type="text" id="job-keywords" placeholder="es. sviluppatore web, marketing, data analyst">
+        </div>
+        <div class="form-group">
+          <label>Luogo</label>
+          <input type="text" id="job-location" placeholder="es. Milano, Roma, Remoto">
+        </div>
+        <button class="btn btn-primary w-full" id="search-jobs-btn" onclick="Jobs.searchJobs()">
+          🔍 Cerca Posizioni
+        </button>
+        <p class="text-xs text-muted mt-12">
+          Le ricerche verranno aperte su LinkedIn, Indeed e InfoJobs. Se hai caricato il CV, riceverai anche un'analisi AI della compatibilità.
+        </p>
+      </div>
+    </div>
+
+    <!-- Job results -->
+    <div id="job-list"></div>
+  </div>
+
+  <!-- ═══ PAGE: EXTENSIONS ═══ -->
+  <div class="page" id="page-extensions">
+    <div class="page-header">
+      <h2>🧩 <span class="accent">Estensioni</span></h2>
+      <p>Espandi LifeOS con nuove funzionalità</p>
+    </div>
+
+    <div id="ext-grid" class="ext-grid"></div>
+  </div>
+
+  <!-- ═══ PAGE: GITHUB ═══ -->
+  <div class="page" id="page-github">
+    <div class="page-header">
+      <h2>☁️ GitHub <span class="accent">Sync</span></h2>
+      <p>Salva e sincronizza tutti i tuoi dati su GitHub</p>
+    </div>
+
+    <div class="grid-2">
+      <!-- Config -->
+      <div class="card github-config" style="max-width:100%">
+        <div class="card-title">
+          ⚙️ Configurazione
+          <span style="margin-left:auto">
+            <span class="status-dot idle" id="gh-status-dot"></span>
+            <span class="text-sm" id="gh-status-txt">Non configurato</span>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>GitHub Username</label>
+          <input type="text" id="gh-user" placeholder="es. mariorossi">
+        </div>
+        <div class="form-group">
+          <label>Repository (deve esistere su GitHub)</label>
+          <input type="text" id="gh-repo" placeholder="es. my-lifeos-data">
+        </div>
+        <div class="form-group">
+          <label>Personal Access Token
+            <a href="https://github.com/settings/tokens/new?scopes=repo&description=LifeOS" target="_blank" class="text-cyan" style="font-size:0.7rem;margin-left:8px">→ Crea token</a>
+          </label>
+          <div class="token-field">
+            <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+            <button class="btn btn-secondary btn-sm" onclick="const el=document.getElementById('gh-token');el.type=el.type==='password'?'text':'password'">👁</button>
+          </div>
+        </div>
+
+        <div class="flex gap-8 flex-wrap">
+          <button class="btn btn-secondary" onclick="GitHub.saveConfig()">💾 Salva config</button>
+          <button class="btn btn-secondary" onclick="GitHub.testConnection()">🔌 Test connessione</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="card-title">📡 Sincronizzazione</div>
+        <div class="flex gap-8 flex-wrap">
+          <button class="btn btn-primary" onclick="GitHub.pushData()">⬆ Push su GitHub</button>
+          <button class="btn btn-cyan" onclick="GitHub.pullData()">⬇ Pull da GitHub</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="card-title">💾 Backup locale</div>
+        <div class="flex gap-8">
+          <button class="btn btn-secondary" onclick="GitHub.exportLocal()">⬇ Esporta JSON</button>
+          <button class="btn btn-secondary" onclick="GitHub.importLocal()">⬆ Importa JSON</button>
+        </div>
+      </div>
+
+      <!-- Log & Guide -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-title">📋 Log operazioni</div>
+          <div class="log-panel" id="gh-log">
+            <div class="log-info">[ LifeOS GitHub Sync — Pronto ]</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📖 Come configurare</div>
+          <ol style="font-size:0.82rem;color:var(--text2);line-height:2;padding-left:18px">
+            <li>Crea un repository <strong>privato</strong> su GitHub</li>
+            <li>Genera un <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" class="text-cyan">Personal Access Token</a> con scope <code style="background:var(--bg4);padding:1px 5px;border-radius:4px">repo</code></li>
+            <li>Inserisci username, nome repository e token sopra</li>
+            <li>Clicca <strong>Salva config</strong> → <strong>Test connessione</strong></li>
+            <li>Usa <strong>Push</strong> per salvare i dati su GitHub</li>
+            <li>Usa <strong>Pull</strong> per ripristinare i dati su un nuovo dispositivo</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 Stato dati salvati</div>
+          <div style="font-size:0.82rem;color:var(--text2);line-height:2">
+            <div>📅 Slot planning: <span class="text-violet font-mono" id="info-schedule">0</span></div>
+            <div>💰 Categorie budget: <span class="text-violet font-mono" id="info-cats">0</span></div>
+            <div>🍽️ Piatti: <span class="text-violet font-mono" id="info-foods">0</span></div>
+            <div>🎓 Esami: <span class="text-violet font-mono" id="info-exams">0</span></div>
+            <div>🧩 Estensioni attive: <span class="text-violet font-mono" id="info-ext">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══ MODAL: EXAM ═══ -->
+<div class="modal-overlay" id="modal-exam">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🎓 Aggiungi Esame</div>
+      <button class="modal-close" onclick="closeModal('modal-exam')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Nome esame *</label>
+      <input type="text" id="exam-name" placeholder="es. Analisi Matematica I">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>CFU *</label>
+        <input type="number" id="exam-cfu" placeholder="6" min="1" max="30">
+      </div>
+      <div class="form-group">
+        <label>Voto (lascia vuoto se non sostenuto)</label>
+        <input type="number" id="exam-grade" placeholder="30" min="18" max="30">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="exam-date">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:22px">
+        <input type="checkbox" id="exam-lode" style="width:auto;margin:0">
+        <label style="margin:0">Con lode (30L)</label>
+      </div>
+    </div>
+    <div class="flex gap-8 mt-16">
+      <button class="btn btn-primary w-full" onclick="Esami.add()">✓ Salva Esame</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-exam')">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST CONTAINER ─── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ─── SCRIPTS ─── -->
+<script src="js/app.js"></script>
+<script src="js/planner.js"></script>
+<script src="js/budget.js"></script>
+<script src="js/modules.js"></script>
+
+<script>
+// ─── Extra init ───
+document.addEventListener('DOMContentLoaded', () => {
+  // Food count update
+  const origRender = Food.renderList.bind(Food);
+  Food.renderList = function() {
+    origRender();
+    const el = document.getElementById('food-count');
+    if (el) el.textContent = App.state.foods.length;
+  };
+
+  // GitHub data info panel
+  function updateGithubInfo() {
+    const s = App.state;
+    const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+    set('info-schedule', Object.keys(s.schedule || {}).length);
+    set('info-cats', (s.budget?.categories || []).length);
+    set('info-foods', (s.foods || []).length);
+    set('info-exams', (s.exams || []).length);
+    set('info-ext', (s.extensions || []).length);
+  }
+
+  // Update GitHub info when navigating to that page
+  const origNav = App.navigate.bind(App);
+  App.navigate = function(page) {
+    origNav(page);
+    if (page === 'github') updateGithubInfo();
+  };
+
+  // Activity button style
+  document.querySelectorAll('.activity-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.activity-btn').forEach(b => {
+        b.style.opacity = '0.6';
+        b.style.transform = 'scale(1)';
+      });
+      this.style.opacity = '1';
+      this.style.transform = 'scale(1.05)';
+    });
+  });
+
+  // CV section init
+  if (App.state.cv) {
+    const cvUp = document.getElementById('cv-uploaded');
+    const cvDz = document.getElementById('cv-dropzone');
+    if (cvUp) cvUp.style.display = 'block';
+    if (cvDz) cvDz.style.display = 'none';
+    const fname = document.getElementById('cv-filename');
+    if (fname) fname.textContent = App.state.cv.name;
+  }
+});
+</script>
+
+</body>
+</html>
